@@ -88,9 +88,11 @@ def download(seed):
     number=len(locs)
     with open('companies.txt','a') as f:
         f.write(url[1]+','+url[2]+','+url[3]+','+url[4]+','+url[5]+','+locs[0]+',')
+        nms=[]
         for r in locs[1:]:
-            f.write(r[0]+',')
-        f.write('\n')
+            nms.append(r[0])
+        nms=','.join(nms)
+        f.write(nms+'\n')
     try:
         loop = asyncio.get_event_loop()
         future = asyncio.ensure_future(run(number-1,locs[1:],seed))
@@ -103,7 +105,8 @@ def download(seed):
         for row in rows:
             if(row==[]):
                 continue
-            for r in row[:-1]:
+            f.write(row[0]+','+row[1]+','+url[1]+',')
+            for r in row[3:-1]:
                 f.write(r+',')
             f.write(row[-1]+'\n')
             

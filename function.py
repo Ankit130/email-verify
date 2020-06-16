@@ -26,10 +26,10 @@ def insert(i):
     with open(os.path.join(path,'data.txt'),'w') as f:
         for row in rows:
             div=row.findAll('div')
-            f.write(div[0].find('a').get('href')+'|'+div[0].text.strip()+'|'+div[1].text.strip()+'|'+div[2].text.strip()+'|'+div[3].text.strip()+'|'+div[4].text.strip()+'|'+div[5].text.strip()+'|'+div[6].text.strip()+'|No\n')
+            f.write(div[0].find('a').get('href')+'|'+div[0].text.strip()+'|'+div[1].text.strip()+'|'+div[2].text.strip()+'|'+div[3].text.strip()+'|'+i+'|No\n')
     reset(i)
 
-         
+       
 def geturl():
     with open('data.txt','r') as f:
         data=f.readlines()
@@ -62,5 +62,5 @@ def update():
                 flag='yes\n'
                 fg=0
             fa=d.split('|')
-            f.write(fa[0]+'|'+fa[1]+'|'+fa[2]+'|'+fa[3]+'|'+fa[4]+'|'+fa[5]+'|'+fa[6]+'|'+flag)
+            f.write(fa[0]+'|'+fa[1]+'|'+fa[2]+'|'+fa[3]+'|'+fa[4]+'|'+fa[5]+'|'+flag)
             
