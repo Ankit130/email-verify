@@ -28,6 +28,8 @@ async def fetch(url, session):
                 for div in divs[1:]:
                     email=div.text.strip()
                     email=email[email.find(':')+1:].strip()
+                    if('sign' in email):
+                        break
                     url.append(email)
                 return url
         except:
@@ -79,6 +81,39 @@ def getlocs(url):
         row=[name,job,link]
         rows.append(row)
     return rows
+
+def rmv(mystring):
+    
+    
+    start = mystring.find( '(' )
+    end = mystring.find( ')' )
+    if start != -1 or end != -1:
+      mystring = mystring[start+1:end]
+    
+
+    start = mystring.find( '"' )
+    end = mystring.find( '"' )
+    if start != -1 or end != -1:
+      mystring = mystring[start+1:end]
+
+    strs=mystring.split(' ')
+    words=[]
+    for strss in strs:
+        words.append(strss.capitalize())
+    res= ' '.join(words)
+    res=res.split('/')[0]
+    res=res.split('-')[0]
+    res=res.split(',')[0]
+    return res
+
+import re
+def test_email(email):
+     if(re.match(r"\"?([-a-zA-Z0-9.`?{}]+@\w+\.\w+)\"?",email)):
+         return True
+     else:
+         return False
+
+from nameparser import HumanName
 def download(seed):
     url=geturl()
     if(url==None):
@@ -86,11 +121,19 @@ def download(seed):
     print(url)
     locs=getlocs(url[0])
     number=len(locs)
+    cname=url[1].split('/')[0].strip()
+    c1name=rmv(cname)
     with open('companies.txt','a') as f:
-        f.write(url[1]+','+url[2]+','+url[3]+','+url[4]+','+url[5]+','+locs[0]+',')
+        f.write(c1name.strip()+','+url[2]+','+url[3]+','+url[4]+','+locs[0]+',')
         nms=[]
         for r in locs[1:]:
-            nms.append(r[0])
+            flgname=rmv(r[0])
+            
+            name = HumanName(flgname)
+            if(name.first == '' or name.last==''):
+                continue
+            
+            nms.append(flgname)
         nms=','.join(nms)
         f.write(nms+'\n')
     try:
@@ -101,14 +144,36 @@ def download(seed):
         loop.stop()
         print("retrying "+url[0])
         return url
+    
     with open('emails.txt','a') as f:
         for row in rows:
             if(row==[]):
                 continue
-            f.write(row[0]+','+row[1]+','+url[1]+',')
+            if(url[1] in row[1]):
+                row[1]=row[1].replace(url[1],'').strip()
+                row[1]=row[1][:row[1].rfind(' ')]
+            elif(cname in row[1]):
+                row[1]=row[1].replace(cname,'').strip()
+                row[1]=row[1][:row[1].rfind(' ')]
+            row[1]=row[1].split(',')[0]
+            row[1]=row[1].split('-')[0]
+            row[1]=rmv(row[1])
+            row[1]=row[1].replace(" De ",' ').replace( " And ",' ').replace( " In ",' ').replace(" For ", ' ').replace(" Of ", ' ').replace(" En ", ' ')
+            if('.html' in row[-1]):
+                   f.write(rmv(row[0]).strip()+','+row[1].strip()+','+c1name.strip()+'\n')
+                   continue
+            else:
+                f.write(rmv(row[0]).strip()+','+row[1].strip()+','+c1name.strip())
+            dups=[]
+            
             for r in row[3:-1]:
-                f.write(r+',')
-            f.write(row[-1]+'\n')
+                if(test_email(r.strip()) and r.strip() not in dups):
+                    f.write(','+r.strip())
+                    dups.append(r.strip())
+            if(test_email(row[-1].strip()) and row[-1].strip() not in dups ):
+                f.write(row[-1].strip()+'\n')
+            else:
+                f.write('\n')
             
     update()
     return url
