@@ -123,7 +123,7 @@ def download(seed):
     number=len(locs)
     cname=url[1].split('/')[0].strip()
     c1name=rmv(cname)
-    with open('companies.txt','a') as f:
+    with open('companies.csv','a') as f:
         f.write(c1name.strip()+','+url[2]+','+url[3]+','+url[4]+','+locs[0]+',')
         nms=[]
         for r in locs[1:]:
@@ -145,7 +145,7 @@ def download(seed):
         print("retrying "+url[0])
         return url
     
-    with open('emails.txt','a') as f:
+    with open('emails.csv','a') as f:
         for row in rows:
             if(row==[]):
                 continue
